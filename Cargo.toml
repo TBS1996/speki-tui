@@ -11,5 +11,5 @@ license = "GPL-2.0-only"
 crossterm = "0.26.1"
 rasciigraph = "0.2.0"
 ascii_tree = "0.1.1"
-speki-backend = { path = "../speki-backend", version="0.1.0"}
+speki-backend = { path = "../speki-backend", version="0.1.1"}
 rand = "0.8.5"
