@@ -1,37 +1,17 @@
-use std::collections::{BTreeSet, HashSet};
-use std::fmt::Display;
-use std::sync::Arc;
-use std::time::Duration;
+use std::collections::BTreeSet;
 
-use speki_backend::card::{Card, CardCache, IsSuspended, Priority, ReviewType, Reviews, SavedCard};
+use speki_backend::card::{Card, CardCache, SavedCard};
 use speki_backend::categories::Category;
-use speki_backend::common::{current_time, open_file_with_vim, randvec, truncate_string};
-use speki_backend::common::{duration_to_days, view_cards_in_explorer};
-use speki_backend::config::Config;
-use speki_backend::git::git_save;
-use speki_backend::ml::{
-    five_review_stuff, fourplus_review_stuff, six_review_stuff, three_review_stuff,
-    two_review_stuff,
-};
+use speki_backend::common::randvec;
+
 use speki_backend::paths::get_share_path;
 use speki_backend::Id;
 
-use ascii_tree::write_tree;
 use ascii_tree::Tree::Node;
 
-use rand::seq::SliceRandom;
-
-use crossterm::cursor::{self, MoveDown, MoveLeft, Show};
 use crossterm::event::KeyEvent;
-use crossterm::style::Print;
-use crossterm::terminal;
-use crossterm::{
-    cursor::{Hide, MoveTo},
-    event::{read, Event, KeyCode},
-    execute,
-    style::{ResetColor, SetForegroundColor},
-    terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
-};
+
+use crossterm::event::{read, Event, KeyCode};
 
 pub fn to_ascii_tree(
     id: &Id,
@@ -106,7 +86,7 @@ pub fn get_following_unfinished_cards(category: &Category, cache: &mut CardCache
 }
 
 pub type CardsFromCategory = Box<dyn FnMut(&Category, &mut CardCache) -> Vec<Id>>;
-pub type SortCards = Box<dyn FnMut(&mut Vec<&SavedCard>, &mut CardCache)>;
+//pub type SortCards = Box<dyn FnMut(&mut Vec<&SavedCard>, &mut CardCache)>;
 
 pub fn get_keycode() -> KeyCode {
     loop {

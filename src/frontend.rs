@@ -5,32 +5,29 @@ use std::time::Duration;
 
 use speki_backend::card::{Card, CardCache, IsSuspended, Priority, ReviewType, Reviews, SavedCard};
 use speki_backend::categories::Category;
-use speki_backend::common::{current_time, open_file_with_vim, randvec, truncate_string};
-use speki_backend::common::{duration_to_days, view_cards_in_explorer};
-use speki_backend::config::Config;
-use speki_backend::git::git_save;
-use speki_backend::ml::{
-    five_review_stuff, fourplus_review_stuff, six_review_stuff, three_review_stuff,
-    two_review_stuff,
-};
-use speki_backend::paths::get_share_path;
+use speki_backend::common::{current_time, truncate_string};
+use speki_backend::common::{duration_to_days};
+
+
+
+
 use speki_backend::Id;
 
 use ascii_tree::write_tree;
-use ascii_tree::Tree::Node;
+
 
 use rand::seq::SliceRandom;
 
-use crossterm::cursor::{self, MoveDown, MoveLeft, Show};
+use crossterm::cursor::{self, MoveDown, MoveLeft};
 use crossterm::event::KeyEvent;
 use crossterm::style::Print;
 use crossterm::terminal;
 use crossterm::{
-    cursor::{Hide, MoveTo},
+    cursor::{MoveTo},
     event::{read, Event, KeyCode},
     execute,
     style::{ResetColor, SetForegroundColor},
-    terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
+    terminal::{Clear, ClearType},
 };
 
 pub fn view_all_cards(stdout: &mut Stdout, cache: &mut CardCache) {

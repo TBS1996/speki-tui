@@ -1,20 +1,16 @@
 //! this will be about actually using the program like reviewing and all that
 
-use std::collections::{BTreeSet, HashSet};
-use std::fmt::Display;
 use std::io::stdout;
-use std::sync::Arc;
-use std::time::Duration;
 
 use backend::{get_following_unfinished_cards, import_stuff};
 use frontend::{
     add_cards, choose_folder, draw_menu, draw_message, health_check, pick_item, print_cool_graphs,
     print_stats, review_cards, view_all_cards, view_cards,
 };
-use speki_backend::card::{Card, CardCache, IsSuspended, Priority, ReviewType, Reviews, SavedCard};
+use speki_backend::card::{CardCache, SavedCard};
 use speki_backend::categories::Category;
-use speki_backend::common::{current_time, open_file_with_vim, randvec, truncate_string};
-use speki_backend::common::{duration_to_days, view_cards_in_explorer};
+use speki_backend::common::view_cards_in_explorer;
+use speki_backend::common::{open_file_with_vim, randvec};
 use speki_backend::config::Config;
 use speki_backend::git::git_save;
 use speki_backend::ml::{
@@ -22,22 +18,12 @@ use speki_backend::ml::{
     two_review_stuff,
 };
 use speki_backend::paths::get_share_path;
-use speki_backend::Id;
 
-use ascii_tree::write_tree;
-use ascii_tree::Tree::Node;
+use crossterm::cursor::Show;
 
-use rand::seq::SliceRandom;
-
-use crossterm::cursor::{self, MoveDown, MoveLeft, Show};
-use crossterm::event::KeyEvent;
-use crossterm::style::Print;
-use crossterm::terminal;
 use crossterm::{
-    cursor::{Hide, MoveTo},
-    event::{read, Event, KeyCode},
+    cursor::Hide,
     execute,
-    style::{ResetColor, SetForegroundColor},
     terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
 };
 
