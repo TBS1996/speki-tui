@@ -1,11 +1,18 @@
 //! this will be about actually using the program like reviewing and all that
 
+use crate::pages::health_check;
+use crate::pages::pick_item;
+use crate::pages::print_cool_graphs;
+use crate::pages::print_stats;
+use crate::pages::viewcards::view_all_cards;
+use crate::pages::viewcards::view_cards;
 use std::io::stdout;
 
-use crate::pages::add_cards::add_cards;
+use crate::pages::reviewcards::review_cards;
 
 use backend::{get_following_unfinished_cards, import_stuff};
-use pages::{choose_folder, draw_menu};
+use pages::addcards::add_the_cards;
+use pages::{choose_folder, draw_menu, draw_message};
 use speki_backend::card::{CardCache, SavedCard};
 use speki_backend::categories::Category;
 use speki_backend::common::view_cards_in_explorer;
@@ -62,7 +69,7 @@ pub fn main() {
         match choice {
             0 => {
                 let Some(category) =  choose_folder(&mut stdout, "Folder to add card to")  else {continue};
-                add_cards(&mut stdout, category, &mut cache);
+                add_the_cards(&mut stdout, category, &mut cache);
                 let has_remote = Config::load().unwrap().git_remote.is_some();
                 let _ = std::thread::spawn(move || git_save(has_remote));
             }

@@ -26,9 +26,9 @@ use crossterm::{
     terminal::{Clear, ClearType},
 };
 
-mod addcards;
-mod reviewcards;
-mod viewcards;
+pub mod addcards;
+pub mod reviewcards;
+pub mod viewcards;
 
 pub fn ascii_test(
     stdout: &mut Stdout,

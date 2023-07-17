@@ -27,7 +27,9 @@ use crossterm::{
     terminal::{Clear, ClearType},
 };
 
-use super::{choose_folder, read_user_input, write_string};
+use crate::pages::move_far_left;
+
+use super::{choose_folder, draw_message, read_user_input, write_string};
 
 pub fn add_card(
     stdout: &mut Stdout,

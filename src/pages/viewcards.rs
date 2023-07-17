@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashSet};
 use std::fmt::Display;
+use std::io::Stdout;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -25,6 +26,11 @@ use crossterm::{
     style::{ResetColor, SetForegroundColor},
     terminal::{Clear, ClearType},
 };
+
+use crate::backend::should_exit;
+
+use super::addcards::{add_card, add_dependency, add_dependent};
+use super::{ascii_test, draw_key_event_message, draw_message, edit_card, search_for_item};
 
 pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
     if cards.is_empty() {

@@ -27,7 +27,14 @@ use crossterm::{
     terminal::{Clear, ClearType},
 };
 
-use crate::backend::CardsFromCategory;
+use crate::backend::{get_keycode, should_exit, CardsFromCategory};
+
+use super::addcards::{add_card, add_dependency, add_dependent};
+use super::viewcards::view_all_cards;
+use super::{
+    affirmative, ascii_test, draw_message, edit_card, print_card_review_back,
+    print_card_review_front, update_status_bar, SomeStatus,
+};
 
 pub fn review_cards(
     stdout: &mut Stdout,
