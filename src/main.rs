@@ -2,11 +2,10 @@
 
 use std::io::stdout;
 
+use crate::pages::add_cards::add_cards;
+
 use backend::{get_following_unfinished_cards, import_stuff};
-use frontend::{
-    add_cards, choose_folder, draw_menu, draw_message, health_check, pick_item, print_cool_graphs,
-    print_stats, review_cards, view_all_cards, view_cards,
-};
+use pages::{choose_folder, draw_menu};
 use speki_backend::card::{CardCache, SavedCard};
 use speki_backend::categories::Category;
 use speki_backend::common::view_cards_in_explorer;
@@ -28,7 +27,7 @@ use crossterm::{
 };
 
 mod backend;
-mod frontend;
+mod pages;
 
 pub fn main() {
     let mut cache = CardCache::new();
