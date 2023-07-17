@@ -12,8 +12,6 @@ use speki_backend::Id;
 
 use ascii_tree::write_tree;
 
-
-
 use crossterm::cursor::{self, MoveDown, MoveLeft};
 use crossterm::event::KeyEvent;
 use crossterm::style::Print;
@@ -520,6 +518,8 @@ pub fn view_card_info(stdout: &mut Stdout, card: Arc<SavedCard>) {
 
     let graphs = vec![current_strength, win_strength, fail_strength];
     // let graphs = vec![current_strength, fail_strength];
+
+    print_cool_graph(stdout, recall_rates.clone(), "recall rate");
 
     let recall_rates = vec![recall_rates, wincall_rates, failcall_rates];
     print_the_cool_graphs(stdout, recall_rates, "some recall rates");

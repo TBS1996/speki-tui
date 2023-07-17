@@ -1,27 +1,15 @@
-
-
 use std::io::Stdout;
-
-
 
 use speki_backend::card::{Card, CardCache, SavedCard};
 use speki_backend::categories::Category;
 
-
-
 use speki_backend::Id;
 
-
-
-
-
-use crossterm::cursor::{MoveDown};
-
-
+use crossterm::cursor::MoveDown;
 
 use crossterm::{
     cursor::MoveTo,
-    event::{KeyCode},
+    event::KeyCode,
     execute,
     terminal::{Clear, ClearType},
 };
