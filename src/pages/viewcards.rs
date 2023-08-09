@@ -1,32 +1,19 @@
-use std::collections::{HashSet};
+use std::collections::HashSet;
 
 use std::io::Stdout;
 
-
-
-use speki_backend::card::{CardCache};
-
-
-
+use speki_backend::card::CardCache;
 
 use speki_backend::Id;
 
-
-
-
-
-
-
-
-
-use crossterm::{
-    event::{KeyCode},
-};
+use crossterm::event::KeyCode;
 
 use crate::backend::should_exit;
 
 use super::addcards::{add_card, add_dependency, add_dependent};
-use super::{ascii_test, draw_key_event_message, draw_message, edit_card, search_for_item};
+use super::{
+    affirmative, ascii_test, draw_key_event_message, draw_message, edit_card, search_for_item,
+};
 
 pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
     if cards.is_empty() {
@@ -132,15 +119,17 @@ pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache
                 }
             }
             KeyCode::Char('D') => {
-                cache.get_owned(card.id()).delete(cache);
-                draw_message(stdout, "Card deleted");
-                cards.remove(selected);
-                if cards.is_empty() {
-                    draw_message(stdout, "No more cards");
-                    return;
-                }
-                if selected == cards.len() {
-                    selected -= 1;
+                if affirmative(stdout, "Delete card?") {
+                    cache.get_owned(card.id()).delete(cache);
+                    draw_message(stdout, "Card deleted");
+                    cards.remove(selected);
+                    if cards.is_empty() {
+                        draw_message(stdout, "No more cards");
+                        return;
+                    }
+                    if selected == cards.len() {
+                        selected -= 1;
+                    }
                 }
             }
             KeyCode::Char('s') => {}

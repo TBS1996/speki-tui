@@ -544,7 +544,7 @@ pub fn edit_card(
         KeyCode::Char('`') => {
             let info = format!("{:?}", card.get_info(cache));
             draw_message(stdout, info.as_str());
-            view_card_info(stdout, card);
+            //view_card_info(stdout, card);
         }
         KeyCode::Char('p') => {
             let ch = _get_char();
@@ -596,6 +596,15 @@ pub fn edit_card(
                 if let Some(info) = info {
                     draw_message(stdout, &info);
                 }
+            }
+        }
+        KeyCode::Char('M') => {
+            if let Some(chosen_card) = search_for_item(stdout, "Merge card with...", excluded_cards)
+            {
+                cache
+                    .get_owned(card.id())
+                    .merge_with(cache, *chosen_card.id());
+                draw_message(stdout, "ok its merged now :D");
             }
         }
         KeyCode::Char('v') => {
