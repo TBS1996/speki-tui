@@ -9,7 +9,6 @@ use speki_backend::Id;
 
 use crossterm::event::KeyCode;
 
-
 use crate::backend::should_exit;
 
 use super::addcards::{add_card, add_dependency, add_dependent};
@@ -18,7 +17,7 @@ use super::{
     generate_answer, search_for_item,
 };
 
-pub async fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
+pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
     if cards.is_empty() {
         draw_message(stdout, "No cards found");
         return;
@@ -115,8 +114,10 @@ pub async fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut Car
                 if let Some(card) = add_card(&mut card.category().clone(), cache) {
                     cards.insert(0, card.id().to_owned()); // temp thing
                     let card = Arc::new(card);
-                    fix_question(card.clone(), cache).await;
-                    generate_answer(card, cache).await;
+                    tokio::runtime::Runtime::new().unwrap().block_on(async {
+                        fix_question(card.clone(), cache).await;
+                        generate_answer(card, cache).await;
+                    })
                 }
             }
             KeyCode::Char('r') => {
@@ -167,7 +168,7 @@ pub async fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut Car
     }
 }
 
-pub async fn view_all_cards(stdout: &mut Stdout, cache: &mut CardCache) {
+pub fn view_all_cards(stdout: &mut Stdout, cache: &mut CardCache) {
     let cards = cache.all_ids();
-    view_cards(stdout, cards, cache).await;
+    view_cards(stdout, cards, cache);
 }

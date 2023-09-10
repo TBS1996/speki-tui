@@ -87,8 +87,7 @@ async fn main() {
                             &mut cache,
                             true,
                             false,
-                        )
-                        .await;
+                        );
                         draw_message(&mut stdout, "now reviewing pending cards");
                         review_cards(
                             &mut stdout,
@@ -97,8 +96,7 @@ async fn main() {
                             &mut cache,
                             true,
                             false,
-                        )
-                        .await;
+                        );
                     }
                     1 => {
                         review_cards(
@@ -108,8 +106,7 @@ async fn main() {
                             &mut cache,
                             true,
                             false,
-                        )
-                        .await;
+                        );
                     }
                     2 => {
                         let mut cards = get_following_unfinished_cards(&category, &mut cache);
@@ -117,7 +114,7 @@ async fn main() {
                             cache.get_ref(card).get_unfinished_dependent_qty(&mut cache)
                         });
                         cards.reverse();
-                        view_cards(&mut stdout, cards, &mut cache).await;
+                        view_cards(&mut stdout, cards, &mut cache);
                     }
                     3 => {
                         review_cards(
@@ -127,8 +124,7 @@ async fn main() {
                             &mut cache,
                             false,
                             true,
-                        )
-                        .await;
+                        );
                     }
                     _ => continue,
                 }
@@ -141,7 +137,7 @@ async fn main() {
                 let _ = Config::edit_with_vim();
             }
             4 => {
-                view_all_cards(&mut stdout, &mut cache).await;
+                view_all_cards(&mut stdout, &mut cache);
             }
             5 => {
                 let tags: Vec<String> = Category::get_all_tags().into_iter().collect();
@@ -151,7 +147,7 @@ async fn main() {
                         .into_iter()
                         .filter_map(|card| card.contains_tag(tag).then(|| card.id().to_owned()))
                         .collect();
-                    view_cards(&mut stdout, cards, &mut cache).await;
+                    view_cards(&mut stdout, cards, &mut cache);
                 }
             }
             6 => {
@@ -171,7 +167,7 @@ async fn main() {
                 });
                 let cards = randvec(cards);
                 let cards = cards.into_iter().map(|card| card.id().to_owned()).collect();
-                view_cards(&mut stdout, cards, &mut cache).await;
+                view_cards(&mut stdout, cards, &mut cache);
             }
             9 => {
                 health_check(&mut stdout, &mut cache);

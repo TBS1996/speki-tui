@@ -4,7 +4,6 @@ use std::io::Stdout;
 
 use std::time::Duration;
 
-use crossterm::event::KeyEvent;
 use speki_backend::card::{CardCache, ReviewType, SavedCard};
 use speki_backend::categories::Category;
 
@@ -29,7 +28,7 @@ use super::{
     print_card_review_front, update_status_bar, SomeStatus,
 };
 
-pub async fn review_cards(
+pub fn review_cards(
     stdout: &mut Stdout,
     category: Category,
     mut get_cards: CardsFromCategory,
@@ -85,9 +84,7 @@ pub async fn review_cards(
 
                     ReviewType::Unfinished => continue,
                 }
-            }
-            .await
-            {
+            } {
                 SomeStatus::Continue => {
                     continue;
                 }
@@ -114,46 +111,7 @@ pub fn print_card_for_review(
     }
 }
 
-enum action {
-    ViewAllCards,
-    NoOp,
-}
-
-impl From<KeyEvent> for action {
-    fn from(value: KeyEvent) -> Self {
-        match value.code {
-            KeyCode::Backspace => todo!(),
-            KeyCode::Enter => todo!(),
-            KeyCode::Left => todo!(),
-            KeyCode::Right => todo!(),
-            KeyCode::Up => todo!(),
-            KeyCode::Down => todo!(),
-            KeyCode::Home => todo!(),
-            KeyCode::End => todo!(),
-            KeyCode::PageUp => todo!(),
-            KeyCode::PageDown => todo!(),
-            KeyCode::Tab => todo!(),
-            KeyCode::BackTab => todo!(),
-            KeyCode::Delete => todo!(),
-            KeyCode::Insert => todo!(),
-            KeyCode::F(_) => todo!(),
-            KeyCode::Char(_) => todo!(),
-            KeyCode::Null => todo!(),
-            KeyCode::Esc => todo!(),
-            KeyCode::CapsLock => todo!(),
-            KeyCode::ScrollLock => todo!(),
-            KeyCode::NumLock => todo!(),
-            KeyCode::PrintScreen => todo!(),
-            KeyCode::Pause => todo!(),
-            KeyCode::Menu => todo!(),
-            KeyCode::KeypadBegin => todo!(),
-            KeyCode::Media(_) => todo!(),
-            KeyCode::Modifier(_) => todo!(),
-        }
-    }
-}
-
-pub async fn review_card(
+pub fn review_card(
     stdout: &mut Stdout,
     card_id: &Id,
     status: String,
@@ -171,7 +129,7 @@ pub async fn review_card(
         }
         match keycode {
             KeyCode::Char('o') => {
-                let _ = view_all_cards(stdout, cache).await;
+                view_all_cards(stdout, cache);
             }
             KeyCode::Char('X') => {
                 let _ = ascii_test(stdout, card.id(), cache, true);
