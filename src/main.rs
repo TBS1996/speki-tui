@@ -19,10 +19,7 @@ use speki_backend::common::view_cards_in_explorer;
 use speki_backend::common::{open_file_with_vim, randvec};
 use speki_backend::config::Config;
 use speki_backend::git::git_save;
-use speki_backend::ml::{
-    five_review_stuff, fourplus_review_stuff, six_review_stuff, three_review_stuff,
-    two_review_stuff,
-};
+
 use speki_backend::paths::get_share_path;
 
 use crossterm::cursor::Show;

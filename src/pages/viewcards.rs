@@ -8,7 +8,7 @@ use speki_backend::card::CardCache;
 use speki_backend::Id;
 
 use crossterm::event::KeyCode;
-use speki_backend::config::Config;
+
 
 use crate::backend::should_exit;
 

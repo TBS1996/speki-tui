@@ -5,19 +5,14 @@ use speki_backend::categories::Category;
 
 use speki_backend::Id;
 
-use crossterm::cursor::MoveDown;
 
-use crossterm::{
-    cursor::MoveTo,
-    event::KeyCode,
-    execute,
-    terminal::{Clear, ClearType},
-};
+
+
 
 use crate::backend::get_text_from_vim;
-use crate::pages::move_far_left;
 
-use super::{choose_folder, draw_message, read_user_input, write_string};
+
+use super::{draw_message};
 
 pub fn add_card(category: &mut Category, cache: &mut CardCache) -> Option<SavedCard> {
     let text = get_text_from_vim(None).ok()??;
@@ -34,7 +29,7 @@ pub fn add_card(category: &mut Category, cache: &mut CardCache) -> Option<SavedC
     Some(card.save_new_card(category, cache))
 }
 
-pub fn add_the_cards(stdout: &mut Stdout, mut category: Category, cache: &mut CardCache) {
+pub fn add_the_cards(_stdout: &mut Stdout, mut category: Category, cache: &mut CardCache) {
     loop {
         if add_card(&mut category, cache).is_none() {
             return;

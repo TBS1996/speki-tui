@@ -24,7 +24,7 @@ use crossterm::{
     style::{ResetColor, SetForegroundColor},
     terminal::{Clear, ClearType},
 };
-use speki_backend::config::Config;
+
 use speki_backend::openai::{get_context, get_response};
 use tokio::runtime;
 
