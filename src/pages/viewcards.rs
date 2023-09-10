@@ -1,21 +1,24 @@
 use std::collections::HashSet;
 
 use std::io::Stdout;
+use std::sync::Arc;
 
 use speki_backend::card::CardCache;
 
 use speki_backend::Id;
 
 use crossterm::event::KeyCode;
+use speki_backend::config::Config;
 
 use crate::backend::should_exit;
 
 use super::addcards::{add_card, add_dependency, add_dependent};
 use super::{
-    affirmative, ascii_test, draw_key_event_message, draw_message, edit_card, search_for_item,
+    affirmative, ascii_test, draw_key_event_message, draw_message, edit_card, fix_question,
+    generate_answer, search_for_item,
 };
 
-pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
+pub async fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
     if cards.is_empty() {
         draw_message(stdout, "No cards found");
         return;
@@ -104,8 +107,16 @@ pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache
             }
 
             KeyCode::Char('a') => {
-                if let Some(card) = add_card(stdout, &mut card.category().clone(), cache) {
+                if let Some(card) = add_card(&mut card.category().clone(), cache) {
                     cards.insert(0, card.id().to_owned()); // temp thing
+                }
+            }
+            KeyCode::Char('A') => {
+                if let Some(card) = add_card(&mut card.category().clone(), cache) {
+                    cards.insert(0, card.id().to_owned()); // temp thing
+                    let card = Arc::new(card);
+                    fix_question(card.clone(), cache).await;
+                    generate_answer(card, cache).await;
                 }
             }
             KeyCode::Char('r') => {
@@ -156,7 +167,7 @@ pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache
     }
 }
 
-pub fn view_all_cards(stdout: &mut Stdout, cache: &mut CardCache) {
+pub async fn view_all_cards(stdout: &mut Stdout, cache: &mut CardCache) {
     let cards = cache.all_ids();
-    view_cards(stdout, cards, cache);
+    view_cards(stdout, cards, cache).await;
 }

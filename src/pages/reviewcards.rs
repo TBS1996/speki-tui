@@ -1,26 +1,21 @@
-use std::collections::{BTreeSet};
+use std::collections::BTreeSet;
 
 use std::io::Stdout;
 
 use std::time::Duration;
 
+use crossterm::event::KeyEvent;
 use speki_backend::card::{CardCache, ReviewType, SavedCard};
 use speki_backend::categories::Category;
 
-use speki_backend::common::{current_time};
+use speki_backend::common::current_time;
 
 use speki_backend::Id;
 
-
-
 use rand::seq::SliceRandom;
 
-
-
-
-
 use crossterm::{
-    event::{KeyCode},
+    event::KeyCode,
     execute,
     terminal::{Clear, ClearType},
 };
@@ -34,7 +29,7 @@ use super::{
     print_card_review_front, update_status_bar, SomeStatus,
 };
 
-pub fn review_cards(
+pub async fn review_cards(
     stdout: &mut Stdout,
     category: Category,
     mut get_cards: CardsFromCategory,
@@ -90,7 +85,9 @@ pub fn review_cards(
 
                     ReviewType::Unfinished => continue,
                 }
-            } {
+            }
+            .await
+            {
                 SomeStatus::Continue => {
                     continue;
                 }
@@ -117,7 +114,46 @@ pub fn print_card_for_review(
     }
 }
 
-pub fn review_card(
+enum action {
+    ViewAllCards,
+    NoOp,
+}
+
+impl From<KeyEvent> for action {
+    fn from(value: KeyEvent) -> Self {
+        match value.code {
+            KeyCode::Backspace => todo!(),
+            KeyCode::Enter => todo!(),
+            KeyCode::Left => todo!(),
+            KeyCode::Right => todo!(),
+            KeyCode::Up => todo!(),
+            KeyCode::Down => todo!(),
+            KeyCode::Home => todo!(),
+            KeyCode::End => todo!(),
+            KeyCode::PageUp => todo!(),
+            KeyCode::PageDown => todo!(),
+            KeyCode::Tab => todo!(),
+            KeyCode::BackTab => todo!(),
+            KeyCode::Delete => todo!(),
+            KeyCode::Insert => todo!(),
+            KeyCode::F(_) => todo!(),
+            KeyCode::Char(_) => todo!(),
+            KeyCode::Null => todo!(),
+            KeyCode::Esc => todo!(),
+            KeyCode::CapsLock => todo!(),
+            KeyCode::ScrollLock => todo!(),
+            KeyCode::NumLock => todo!(),
+            KeyCode::PrintScreen => todo!(),
+            KeyCode::Pause => todo!(),
+            KeyCode::Menu => todo!(),
+            KeyCode::KeypadBegin => todo!(),
+            KeyCode::Media(_) => todo!(),
+            KeyCode::Modifier(_) => todo!(),
+        }
+    }
+}
+
+pub async fn review_card(
     stdout: &mut Stdout,
     card_id: &Id,
     status: String,
@@ -134,7 +170,9 @@ pub fn review_card(
             continue;
         }
         match keycode {
-            KeyCode::Char('o') => view_all_cards(stdout, cache),
+            KeyCode::Char('o') => {
+                let _ = view_all_cards(stdout, cache).await;
+            }
             KeyCode::Char('X') => {
                 let _ = ascii_test(stdout, card.id(), cache, true);
             }
@@ -167,7 +205,7 @@ pub fn review_card(
             }
             KeyCode::Char('s') => break,
             KeyCode::Char('a') => {
-                add_card(stdout, &mut card.category().to_owned(), cache);
+                add_card(&mut card.category().to_owned(), cache);
             }
             KeyCode::Char(c) if show_backside => match c.to_string().parse() {
                 Ok(grade) => {

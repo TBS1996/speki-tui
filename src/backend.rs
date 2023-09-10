@@ -13,6 +13,43 @@ use crossterm::event::KeyEvent;
 
 use crossterm::event::{read, Event, KeyCode};
 
+pub fn get_text_from_vim(initial_text: Option<String>) -> std::io::Result<Option<String>> {
+    use std::io::Read;
+    use std::path::Path;
+    use std::process::Command;
+
+    let temp_file_path = "temp_vim_file.txt";
+
+    if let Some(text) = initial_text {
+        std::fs::write(temp_file_path, text)?;
+    }
+
+    let status = Command::new("vim").arg(temp_file_path).status()?;
+
+    match status.success() {
+        true => {
+            if !Path::new(temp_file_path).exists() {
+                return Ok(None);
+            }
+
+            let mut file = std::fs::File::open(temp_file_path)?;
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)?;
+            std::fs::remove_file(temp_file_path)?;
+
+            if contents.is_empty() {
+                Ok(None)
+            } else {
+                Ok(Some(contents))
+            }
+        }
+        false => {
+            std::fs::remove_file(temp_file_path).ok();
+            Ok(None)
+        }
+    }
+}
+
 pub fn to_ascii_tree(
     id: &Id,
     cache: &mut CardCache,

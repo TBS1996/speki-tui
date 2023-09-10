@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashSet};
 use std::fmt::Display;
+use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -23,6 +24,9 @@ use crossterm::{
     style::{ResetColor, SetForegroundColor},
     terminal::{Clear, ClearType},
 };
+use speki_backend::config::Config;
+use speki_backend::openai::{get_context, get_response};
+use tokio::runtime;
 
 pub mod addcards;
 pub mod reviewcards;
@@ -531,6 +535,61 @@ pub fn view_card_info(stdout: &mut Stdout, card: Arc<SavedCard>) {
     print_cool_graph(stdout, strength_over_time, "strength over time");
 }
 
+async fn generate_answer(card: Arc<SavedCard>, cache: &mut CardCache) {
+    let dependencies = {
+        let mut dependencies = vec![];
+        let ids = cache.dependencies(card.id());
+        for id in ids {
+            dependencies.push(cache.get_ref(&id).front_text().to_string());
+        }
+        dependencies
+    };
+
+    let dependents = {
+        let mut dependents = vec![];
+        let ids = cache.dependents(card.id());
+        for id in ids {
+            dependents.push(cache.get_ref(&id).front_text().to_string());
+        }
+        dependents
+    };
+
+    let question = cache.get_ref(card.id()).front_text().to_string();
+    let Some(response) = get_response(question.as_str(), dependencies, &dependents).await else {return};
+    cache.get_owned(card.id()).set_back_text(response.as_str());
+}
+
+async fn fix_question(card: Arc<SavedCard>, cache: &mut CardCache) {
+    let dependencies = {
+        let mut dependencies = vec![];
+        let ids = cache.dependencies(card.id());
+        for id in ids {
+            dependencies.push(cache.get_ref(&id).front_text().to_string());
+        }
+        dependencies
+    };
+
+    let question = cache.get_ref(card.id()).front_text().to_string();
+    let Some(response) = get_context(question.as_str(),  &dependencies).await else {return};
+    cache.get_owned(card.id()).set_front_text(response.as_str());
+}
+
+fn block_on<T>(future: impl Future<Output = T>) -> T {
+    let runtime = tokio::runtime::Runtime::new().unwrap();
+    runtime.block_on(future)
+}
+
+fn _block_on_all<F1, F2, T1, T2>(future1: F1, future2: F2) -> (T1, T2)
+where
+    F1: Future<Output = T1> + Send + 'static,
+    F2: Future<Output = T2> + Send + 'static,
+    T1: Send + 'static,
+    T2: Send + 'static,
+{
+    let rt = runtime::Runtime::new().unwrap();
+    rt.block_on(async { tokio::join!(future1, future2) })
+}
+
 /// Bool represents if any action was taken.
 pub fn edit_card(
     stdout: &mut Stdout,
@@ -541,6 +600,12 @@ pub fn edit_card(
     let mut excluded_cards = HashSet::new();
     excluded_cards.insert(card.id().to_owned());
     match key {
+        KeyCode::Char('H') => block_on(generate_answer(card, cache)),
+        KeyCode::Char('u') => block_on(fix_question(card, cache)),
+        KeyCode::Char('U') => {
+            block_on(generate_answer(card.clone(), cache));
+            block_on(fix_question(card, cache));
+        }
         KeyCode::Char('`') => {
             let info = format!("{:?}", card.get_info(cache));
             draw_message(stdout, info.as_str());
@@ -832,7 +897,7 @@ pub fn search_for_item(
                 println!("  {}", card.front_text());
             }
 
-            if idx == screen_height.into() {
+            if idx == screen_height as usize {
                 break;
             }
         }
