@@ -13,41 +13,46 @@ use crossterm::event::KeyEvent;
 
 use crossterm::event::{read, Event, KeyCode};
 
-pub fn get_text_from_vim(initial_text: Option<String>) -> std::io::Result<Option<String>> {
+pub fn get_text_from_vim(
+    initial_text: Option<String>,
+    vim_rc: Option<&str>,
+) -> std::io::Result<Option<String>> {
     use std::io::Read;
     use std::path::Path;
     use std::process::Command;
 
-    let temp_file_path = "temp_vim_file.txt";
+    let temp_file_path = "first line is front, second line is back";
+    let vimrc_temp_path = "flashcard_vimrc.vim";
 
     if let Some(text) = initial_text {
         std::fs::write(temp_file_path, text)?;
     }
 
-    let status = Command::new("vim").arg(temp_file_path).status()?;
+    let mut command = Command::new("nvim");
 
-    match status.success() {
-        true => {
-            if !Path::new(temp_file_path).exists() {
-                return Ok(None);
-            }
-
-            let mut file = std::fs::File::open(temp_file_path)?;
-            let mut contents = String::new();
-            file.read_to_string(&mut contents)?;
-            std::fs::remove_file(temp_file_path)?;
-
-            if contents.is_empty() {
-                Ok(None)
-            } else {
-                Ok(Some(contents))
-            }
-        }
-        false => {
-            std::fs::remove_file(temp_file_path).ok();
-            Ok(None)
-        }
+    if let Some(vim_rc) = vim_rc {
+        std::fs::write(vimrc_temp_path, vim_rc)?;
+        command.arg("-u").arg(vimrc_temp_path);
     }
+
+    command
+        .arg("-c")
+        .arg("startinsert")
+        .arg(temp_file_path)
+        .status()?;
+
+    // Cleanup the temporary vimrc file after Vim exits
+    if vim_rc.is_some() {
+        std::fs::remove_file(vimrc_temp_path)?;
+    }
+
+    Ok(Path::new(temp_file_path).exists().then_some({
+        let mut file = std::fs::File::open(temp_file_path)?;
+        let mut str_contents = String::new();
+        file.read_to_string(&mut str_contents)?;
+        std::fs::remove_file(temp_file_path)?;
+        str_contents
+    }))
 }
 
 pub fn to_ascii_tree(

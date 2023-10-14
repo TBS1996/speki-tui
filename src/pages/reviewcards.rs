@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use std::io::Stdout;
 
+use std::ops::ControlFlow;
 use std::time::Duration;
 
 use speki_backend::card::{CardCache, ReviewType, SavedCard};
@@ -25,7 +26,7 @@ use super::addcards::{add_card, add_dependency, add_dependent};
 use super::viewcards::view_all_cards;
 use super::{
     affirmative, ascii_test, draw_message, edit_card, print_card_review_back,
-    print_card_review_front, update_status_bar, SomeStatus,
+    print_card_review_front, update_status_bar,
 };
 
 pub fn review_cards(
@@ -85,10 +86,10 @@ pub fn review_cards(
                     ReviewType::Unfinished => continue,
                 }
             } {
-                SomeStatus::Continue => {
+                ControlFlow::Continue(()) => {
                     continue;
                 }
-                SomeStatus::Break => return,
+                ControlFlow::Break(()) => return,
             }
         }
         if !toggle_refresh {
@@ -116,7 +117,7 @@ pub fn review_card(
     card_id: &Id,
     status: String,
     cache: &mut CardCache,
-) -> SomeStatus {
+) -> ControlFlow<()> {
     let mut show_backside = false;
     let start_time = current_time();
     let mut duration = Duration::default();
@@ -147,7 +148,7 @@ pub fn review_card(
                 let category = Some(card.category().to_owned());
                 add_dependent(stdout, card.id(), category.as_ref(), cache);
             }
-            KeyCode::Char('q') => return SomeStatus::Break,
+            KeyCode::Char('q') => return ControlFlow::Break(()),
             KeyCode::Char('D') => {
                 if affirmative(stdout, "Delete card?") {
                     cache.get_owned(card.id()).delete(cache);
@@ -163,18 +164,18 @@ pub fn review_card(
             }
             KeyCode::Char('s') => break,
             KeyCode::Char('a') => {
-                add_card(&mut card.category().to_owned(), cache);
+                add_card(None, &mut card.category().to_owned(), cache);
             }
             KeyCode::Char(c) if show_backside => match c.to_string().parse() {
                 Ok(grade) => {
                     cache.get_owned(card_id).new_review(grade, duration);
-                    return SomeStatus::Continue;
+                    return ControlFlow::Continue(());
                 }
                 _ => continue,
             },
-            key if should_exit(&key) => return SomeStatus::Break,
+            key if should_exit(&key) => return ControlFlow::Break(()),
             _ => continue,
         }
     }
-    SomeStatus::Continue
+    ControlFlow::Continue(())
 }

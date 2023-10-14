@@ -33,6 +33,12 @@ use crossterm::{
 mod backend;
 mod pages;
 
+trait Page {}
+
+struct App {
+    pages: Vec<Box<dyn Page>>,
+}
+
 #[tokio::main]
 async fn main() {
     let mut cache = CardCache::new();
@@ -68,15 +74,26 @@ async fn main() {
     while let Some(choice) = draw_menu(&mut stdout, None, menu_items.clone(), true) {
         match choice {
             0 => {
-                let Some(category) =  choose_folder(&mut stdout, "Folder to add card to")  else {continue};
+                let Some(category) = choose_folder(&mut stdout, "Folder to add card to") else {
+                    continue;
+                };
                 add_the_cards(&mut stdout, category, &mut cache);
                 let has_remote = Config::load().unwrap().git_remote.is_some();
                 let _ = std::thread::spawn(move || git_save(has_remote));
             }
             1 => {
-                let Some(revtype) = draw_menu(&mut stdout, None, vec!["Normal", "Pending", "Unfinished", "Random review"], true) else {continue};
+                let Some(revtype) = draw_menu(
+                    &mut stdout,
+                    None,
+                    vec!["Normal", "Pending", "Unfinished", "Random review"],
+                    true,
+                ) else {
+                    continue;
+                };
 
-                let Some(category) =  choose_folder(&mut stdout, "Choose review type") else {continue};
+                let Some(category) = choose_folder(&mut stdout, "Choose review type") else {
+                    continue;
+                };
 
                 match revtype {
                     0 => {

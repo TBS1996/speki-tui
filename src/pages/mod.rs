@@ -86,7 +86,11 @@ pub fn print_expected_stuff(stdout: &mut Stdout) {
     let mut s = String::new();
 
     for card in cards {
-        let (Some(gain), Some(stability), Some(recall)) = (card.expected_gain(), card.stability(), card.recall_rate()) else {continue};
+        let (Some(gain), Some(stability), Some(recall)) =
+            (card.expected_gain(), card.stability(), card.recall_rate())
+        else {
+            continue;
+        };
         let gain = (gain * 100.).round() / 100.;
         let stability = (stability.as_secs_f32() / 864.).round() / 100.;
         let recall = (recall * 100.).round();
@@ -311,7 +315,9 @@ pub fn print_cool_graphs(stdout: &mut Stdout, cache: &mut CardCache) {
     let mut max_stab = 0;
 
     for card in &all_cards {
-        let Some(stability) = card.stability() else {continue};
+        let Some(stability) = card.stability() else {
+            continue;
+        };
         let stability = stability.as_secs() / (86400 / 4);
         if stability > max_stab {
             max_stab = stability;
@@ -335,9 +341,13 @@ pub fn print_cool_graphs(stdout: &mut Stdout, cache: &mut CardCache) {
         print!("{} ", days);
         let mut count = 0;
         for card in &all_cards {
-            let Some(mut time_passed)  = card.time_since_last_review() else {continue};
+            let Some(mut time_passed) = card.time_since_last_review() else {
+                continue;
+            };
             time_passed += std::time::Duration::from_secs((86400 * days / 4).into());
-            let Some(stability) = card.stability() else {continue};
+            let Some(stability) = card.stability() else {
+                continue;
+            };
             if Reviews::calculate_recall_rate(&time_passed, &stability) < 0.9 {
                 count += 1;
             }
@@ -355,7 +365,9 @@ pub fn print_cool_graphs(stdout: &mut Stdout, cache: &mut CardCache) {
     let mut max_strength = 0;
     let mut tot_strength = 0.;
     for card in &all_cards {
-        let Some(strength) = card.strength() else {continue};
+        let Some(strength) = card.strength() else {
+            continue;
+        };
         let strength = strength.as_secs_f32() / 86400.;
         /*
         println!(
@@ -419,7 +431,7 @@ pub fn print_card_review_back(stdout: &mut Stdout, card: &Card, sound: bool) {
     move_far_left(stdout);
     execute!(stdout, MoveDown(1)).unwrap();
     move_far_left(stdout);
-    println!("------------------");
+    println!("===================================================");
     execute!(stdout, MoveDown(1)).unwrap();
     move_far_left(stdout);
     println!("{}", card.back.text);
@@ -555,7 +567,9 @@ async fn generate_answer(card: Arc<SavedCard>, cache: &mut CardCache) {
     };
 
     let question = cache.get_ref(card.id()).front_text().to_string();
-    let Some(response) = get_response(question.as_str(), dependencies, &dependents).await else {return};
+    let Some(response) = get_response(question.as_str(), dependencies, &dependents).await else {
+        return;
+    };
     cache.get_owned(card.id()).set_back_text(response.as_str());
 }
 
@@ -570,7 +584,9 @@ async fn fix_question(card: Arc<SavedCard>, cache: &mut CardCache) {
     };
 
     let question = cache.get_ref(card.id()).front_text().to_string();
-    let Some(response) = get_context(question.as_str(),  &dependencies).await else {return};
+    let Some(response) = get_context(question.as_str(), &dependencies).await else {
+        return;
+    };
     cache.get_owned(card.id()).set_front_text(response.as_str());
 }
 
@@ -984,8 +1000,3 @@ use std::io::{Stdout, Write};
 use crate::backend::{
     _get_char, cards_as_string, get_key_event, get_keycode, should_exit, to_ascii_tree,
 };
-
-pub enum SomeStatus {
-    Continue,
-    Break,
-}

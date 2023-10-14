@@ -17,6 +17,8 @@ use super::{
     generate_answer, search_for_item,
 };
 
+//pub fn view_card(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {}
+
 pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache) {
     if cards.is_empty() {
         draw_message(stdout, "No cards found");
@@ -32,7 +34,7 @@ pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache
         excluded_cards.insert(card.id().to_owned());
 
         let message = format!(
-            "{}/{}\t{}\n{}\n-------------------\n{}",
+            "{}/{}\t{}\n{}\n=============================\n{}",
             selected + 1,
             card_qty,
             card.category().print_full(),
@@ -104,14 +106,25 @@ pub fn view_cards(stdout: &mut Stdout, mut cards: Vec<Id>, cache: &mut CardCache
                     cards.insert(0, *updated_card.id());
                 }
             }
+            KeyCode::Char('i') => {
+                let front_text = card.front_text().to_owned();
+                let back_text = card.back_text().to_owned();
+                if let Some(card) = add_card(
+                    Some((front_text, back_text)),
+                    &mut card.category().clone(),
+                    cache,
+                ) {
+                    cards.insert(0, card.id().to_owned()); // temp thing
+                }
+            }
 
             KeyCode::Char('a') => {
-                if let Some(card) = add_card(&mut card.category().clone(), cache) {
+                if let Some(card) = add_card(None, &mut card.category().clone(), cache) {
                     cards.insert(0, card.id().to_owned()); // temp thing
                 }
             }
             KeyCode::Char('A') => {
-                if let Some(card) = add_card(&mut card.category().clone(), cache) {
+                if let Some(card) = add_card(None, &mut card.category().clone(), cache) {
                     cards.insert(0, card.id().to_owned()); // temp thing
                     let card = Arc::new(card);
                     tokio::runtime::Runtime::new().unwrap().block_on(async {
